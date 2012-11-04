@@ -37,7 +37,7 @@ public class Game {
 
             if (board.countAt(positionToTakeOver) == board.thresholdOf(positionToTakeOver)) {
                 board.empty(positionToTakeOver);
-                neighbors.addAll(board.neighboringCellsToTakeOver(new CellToTakeOver(positionToTakeOver, cellToTakeOver.newColor)));
+                neighbors.addAll(board.neighboringCellsToTakeOver(cellToTakeOver));
             }
         }
     }
