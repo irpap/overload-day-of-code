@@ -12,13 +12,13 @@ public class Game {
     }
 
     public boolean hasWinner() {
-        return movesPlayed > 1 && board.isAllSameColor();
+        return movesPlayed > 1 && board.allCellsAreSameColor();
     }
 
     public Game play(Color color, Position position) {
         movesPlayed++;
         if (board.positionIsBelowThreshold(position))
-            board.placePieceAt(color, position);
+            board.placePieceAt(new CellToTakeOver(position, color));
         else {
             board.empty(position);
             explodePieceToNeighbors(color, position);
@@ -28,16 +28,16 @@ public class Game {
 
     private void explodePieceToNeighbors(Color pieceColor, Position piecePosition) {
 
-        LinkedList<PositionAndColor> neighbors = board.neighborsOf(new PositionAndColor(piecePosition, pieceColor));
+        LinkedList<CellToTakeOver> neighbors = board.neighboringCellsToTakeOver(new CellToTakeOver(piecePosition, pieceColor));
         while (!neighbors.isEmpty()) {
-            PositionAndColor top = neighbors.removeFirst();
-            Position topPos = top.position;
-            Color topColor = top.color;
-            board.placePieceAt(topColor, topPos);
+            CellToTakeOver cellToTakeOver = neighbors.removeFirst();
+            Position positionToTakeOver = cellToTakeOver.position;
 
-            if (board.countAt(topPos) == board.thresholdOf(topPos)) {
-                board.empty(topPos);
-                neighbors.addAll(board.neighborsOf(new PositionAndColor(topPos, topColor)));
+            board.placePieceAt(cellToTakeOver);
+
+            if (board.countAt(positionToTakeOver) == board.thresholdOf(positionToTakeOver)) {
+                board.empty(positionToTakeOver);
+                neighbors.addAll(board.neighboringCellsToTakeOver(new CellToTakeOver(positionToTakeOver, cellToTakeOver.newColor)));
             }
         }
     }

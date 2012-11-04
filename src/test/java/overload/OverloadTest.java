@@ -13,7 +13,7 @@ public class OverloadTest {
     }
 
     @Test
-    public void afterJustTheFirstMoveNooneWins() {
+    public void afterJustTheFirstMoveNoOneWins() {
         Game game = new Game(new Size(2));
         Game updatedGame = game.play(Color.WHITE, new Position(0, 0));
         assertFalse(updatedGame.hasWinner());
@@ -63,7 +63,7 @@ public class OverloadTest {
     }
 
     @Test
-    public void overloadFromMiddleBottomIsChainedToCenter() {
+    public void overloadFromMiddleBottomIsChainedToCenterAndWhiteWins() {
         Game game = new Game(new Size(3));
         Game updatedGame = game
                 .play(Color.BLACK, new Position(1, 1))
@@ -77,7 +77,6 @@ public class OverloadTest {
 
         System.out.println(updatedGame.toString());
         assertEquals(updatedGame.colorAt(new Position(1, 1)), Color.NONE);
-
         assertEquals(updatedGame.colorAt(new Position(1, 0)), Color.WHITE);
         assertEquals(updatedGame.colorAt(new Position(2, 1)), Color.WHITE);
         assertEquals(updatedGame.colorAt(new Position(2, 2)), Color.WHITE);

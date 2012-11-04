@@ -4,11 +4,9 @@ import java.util.LinkedList;
 
 public class Board {
     private Cell[][] state;
-    private final int width;
 
     private Board(Cell[][] cells) {
         state = cells;
-        this.width = cells.length;
     }
 
     public static Board emptyBoard(Size size) {
@@ -20,12 +18,12 @@ public class Board {
     private static void initialiseCells(Cell[][] cells) {
         for (int i = 0; i < cells.length; i++) {
             for (int j = 0; j < cells[i].length; j++) {
-                cells[i][j] = new Cell(Color.NONE, 0);
+                cells[i][j] = Cell.emptyCell();
             }
         }
     }
 
-    public boolean isAllSameColor() {
+    public boolean allCellsAreSameColor() {
         Color first = state[0][0].getColor();
         for (Cell[] row : state) {
             for (Cell cell : row) {
@@ -53,31 +51,44 @@ public class Board {
         return state[position.x][position.y].getCount();
     }
 
-    public void placePieceAt(Color color, Position position) {
-        state[position.x][position.y].setColor(color);
+    public void placePieceAt(CellToTakeOver cellToTakeOver) {
+        this.setColorAt(cellToTakeOver.position, cellToTakeOver.newColor);
+        this.incrementCountAt(cellToTakeOver.position);
+    }
+
+    private void incrementCountAt(Position position) {
         state[position.x][position.y].incrementCount();
     }
 
+    private void setColorAt(Position position, Color color) {
+        state[position.x][position.y].setColor(color);
+    }
+
     public void empty(Position position) {
-        state[position.x][position.y].setColor(Color.NONE);
+        this.setColorAt(position, Color.NONE);
+        this.resetCountAt(position);
+    }
+
+    private void resetCountAt(Position position) {
         state[position.x][position.y].resetCount();
     }
 
 
-    public LinkedList<PositionAndColor> neighborsOf(PositionAndColor positionAndColor) {
-        LinkedList<PositionAndColor> neighbors = new LinkedList<PositionAndColor>();
-        Position position = positionAndColor.position;
+    public LinkedList<CellToTakeOver> neighboringCellsToTakeOver(CellToTakeOver cellToTakeOver) {
+        LinkedList<CellToTakeOver> neighbors = new LinkedList<CellToTakeOver>();
+        Position position = cellToTakeOver.position;
         for (int[] diff : new int[][]{{0, 1}, {1, 0}, {0, -1}, {-1, 0}}) {
-            int x = position.x + diff[0];
-            int y = position.y + diff[1];
-            if (x >= 0 && x < width && y >= 0 && y < width) {
-                Position neighborPosition = new Position(x, y);
-                neighbors.add(new PositionAndColor(neighborPosition, positionAndColor.color));
+            Position neighborPosition = new Position(position.x + diff[0], position.y + diff[1]);
+            if (withinBounds(neighborPosition)) {
+                neighbors.add(cellToTakeOver.copyWithNewPosition(neighborPosition));
             }
         }
         return neighbors;
     }
 
+    private boolean withinBounds(Position position) {
+        return position.x >= 0 && position.x < state.length && position.y >= 0 && position.y < state.length;
+    }
 
     public int thresholdOf(Position position) {
         if (isCorner(position)) return Threshold.CORNER.getValue();
@@ -94,7 +105,7 @@ public class Board {
     }
 
     private boolean isAtEdge(int x) {
-        return x == 0 || x == width - 1;
+        return x == 0 || x == state.length - 1;
     }
 
     public boolean positionIsBelowThreshold(Position position) {

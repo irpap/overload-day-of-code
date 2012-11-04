@@ -4,7 +4,11 @@ public class Cell {
     private Color color;
     private int count;
 
-    public Cell(Color color, int count) {
+    public static Cell emptyCell() {
+        return new Cell(Color.NONE, 0);
+    }
+
+    private Cell(Color color, int count) {
         this.color = color;
         this.count = count;
     }
@@ -34,7 +38,7 @@ public class Cell {
             case BLACK:
                 return "B";
             case WHITE:
-                return "w";
+                return "W";
             default:
                 return " ";
         }
